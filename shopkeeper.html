@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dukaan App — Shopkeeper</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f0f0; display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
+:root { --green:#1D9E75; --gl:#E1F5EE; --gd:#085041; --amber:#BA7517; --al:#FAEEDA; --coral:#D85A30; --cl:#FAECE7; --blue:#185FA5; --bl:#E6F1FB; }
+.app { width:100%; max-width:420px; background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.10); overflow:hidden; min-height:700px; display:flex; flex-direction:column; position:relative; }
+.topbar { padding:12px 14px; color:#fff; display:flex; align-items:center; justify-content:space-between; }
+.tb-t { font-size:16px; font-weight:700; }
+.tb-s { font-size:11px; opacity:0.85; margin-top:2px; }
+.tbadge { background:rgba(255,255,255,0.2); font-size:11px; border-radius:6px; padding:4px 10px; }
+.page { display:none; flex-direction:column; flex:1; overflow:hidden; }
+.page.active { display:flex; }
+.scroll { flex:1; overflow-y:auto; padding-bottom:10px; }
+.bnav { display:flex; border-top:1px solid #f0f0f0; background:#fff; }
+.ni { flex:1; display:flex; flex-direction:column; align-items:center; padding:9px 4px 7px; cursor:pointer; gap:2px; color:#ccc; font-size:10px; border:none; background:none; }
+.ni.on { color:var(--amber); }
+.ni-ic { font-size:16px; }
+.sec { font-size:12px; font-weight:700; color:#888; padding:14px 14px 6px; text-transform:uppercase; letter-spacing:0.4px; }
+.card { background:#fff; border:1px solid #f0f0f0; border-radius:14px; padding:12px; margin:0 12px 10px; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+.row { display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-bottom:1px solid #f5f5f5; font-size:13px; }
+.row:last-child { border-bottom:none; }
+.badge { font-size:10px; border-radius:4px; padding:2px 7px; font-weight:700; }
+.bg { background:var(--gl); color:var(--gd); } .ba { background:var(--al); color:#633806; } .bc { background:var(--cl); color:var(--coral); } .bb { background:var(--bl); color:var(--blue); }
+.btn { border:none; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-g { background:var(--green); color:#fff; } .btn-c { background:var(--cl); color:var(--coral); border:1px solid var(--coral); } .btn-b { background:var(--blue); color:#fff; }
+
+/* REGISTER */
+.reg-hero { background:var(--amber); padding:20px 16px; color:#fff; text-align:center; }
+.reg-hero h2 { font-size:18px; font-weight:700; }
+.reg-hero p { font-size:12px; opacity:0.9; margin-top:4px; }
+.form-body { padding:16px; }
+.field { margin-bottom:14px; }
+.field label { font-size:12px; color:#666; display:block; margin-bottom:5px; font-weight:600; }
+.field input, .field select { width:100%; padding:10px 12px; border:1.5px solid #e0e0e0; border-radius:8px; font-size:14px; background:#fff; color:#333; outline:none; }
+.field input:focus, .field select:focus { border-color:var(--amber); }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.submit-btn { width:100%; background:var(--amber); color:#fff; border:none; border-radius:12px; padding:13px; font-size:15px; font-weight:700; cursor:pointer; margin-top:4px; }
+
+/* DASHBOARD */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:14px; }
+.stat { background:#f9f9f9; border-radius:12px; padding:12px; border:1px solid #eee; }
+.stat-ic { font-size:20px; margin-bottom:6px; }
+.stat-v { font-size:20px; font-weight:700; color:#222; }
+.stat-l { font-size:11px; color:#888; margin-top:2px; }
+.stat-ch { font-size:11px; margin-top:3px; }
+.ocard { background:var(--al); border-radius:12px; padding:12px; margin:0 12px 10px; border:1px solid #EF9F27; }
+.ocard-h { display:flex; justify-content:space-between; margin-bottom:4px; }
+.oid { font-size:13px; font-weight:700; color:#222; }
+.otime { font-size:11px; color:var(--amber); }
+.oitems { font-size:12px; color:#666; margin-bottom:8px; }
+.oactions { display:flex; gap:8px; }
+
+/* STOCK */
+.stock-hdr { display:flex; justify-content:space-between; align-items:center; padding:0 14px 8px; }
+.add-btn2 { background:var(--amber); color:#fff; border:none; border-radius:8px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer; }
+.si { display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid #f5f5f5; }
+.si-em { font-size:22px; width:36px; text-align:center; flex-shrink:0; }
+.si-info { flex:1; }
+.si-name { font-size:13px; font-weight:700; color:#222; }
+.si-meta { font-size:11px; color:#888; margin-top:2px; }
+.si-qty { text-align:right; }
+.si-num { font-size:15px; font-weight:700; color:#222; }
+.si-lbl { font-size:10px; color:#bbb; }
+.low { font-size:10px; background:var(--cl); color:var(--coral); border-radius:4px; padding:1px 6px; display:block; margin-top:2px; }
+
+/* BILLING */
+.bill-area { padding:12px 14px; }
+.bill-search { display:flex; align-items:center; gap:8px; background:#f5f5f5; border-radius:8px; padding:8px 12px; margin-bottom:10px; }
+.bill-search input { border:none; outline:none; font-size:13px; flex:1; background:transparent; color:#333; }
+.quick { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.qchip { background:#f5f5f5; border:1px solid #e0e0e0; border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer; color:#555; }
+.qchip:hover { border-color:var(--amber); color:#633806; }
+.bill-list { border:1px solid #eee; border-radius:12px; overflow:hidden; margin-bottom:10px; }
+.bi { display:flex; align-items:center; gap:8px; padding:9px 12px; border-bottom:1px solid #f5f5f5; }
+.bi:last-child { border-bottom:none; }
+.bi-name { flex:1; font-size:13px; color:#222; }
+.bqc { display:flex; align-items:center; gap:5px; }
+.bqb { width:22px; height:22px; border-radius:4px; border:1px solid #ddd; background:#f5f5f5; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; }
+.bqn { font-size:13px; min-width:18px; text-align:center; font-weight:700; }
+.bi-price { font-size:13px; font-weight:700; color:var(--gd); min-width:42px; text-align:right; }
+.bi-del { color:var(--coral); background:none; border:none; cursor:pointer; font-size:16px; }
+.bill-tot { background:var(--gl); padding:12px 14px; border-radius:10px; margin-bottom:10px; }
+.btl { display:flex; justify-content:space-between; font-size:13px; color:#666; margin-bottom:4px; }
+.btl.big { font-size:16px; font-weight:700; color:var(--gd); margin-top:6px; padding-top:6px; border-top:1px solid #9FE1CB; }
+.print-btn { width:100%; background:var(--amber); color:#fff; border:none; border-radius:12px; padding:12px; font-size:14px; font-weight:700; cursor:pointer; }
+
+/* PANEL */
+.panel { display:none; position:absolute; top:0; left:0; right:0; bottom:0; background:#fff; z-index:30; flex-direction:column; }
+.panel.open { display:flex; }
+.panel-top { background:var(--amber); padding:13px 14px; color:#fff; display:flex; align-items:center; gap:10px; }
+.bk { background:rgba(255,255,255,0.2); border:none; border-radius:6px; padding:4px 10px; color:#fff; cursor:pointer; font-size:13px; font-weight:700; }
+.panel-body { flex:1; overflow-y:auto; padding:16px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- REGISTER -->
+  <div class="page active" id="pg-register">
+    <div class="reg-hero"><h2>🏪 Dukaan Register karo</h2><p>Apni dukaan Dukaan App pe laao — bilkul free!</p></div>
+    <div class="scroll">
+      <div class="form-body">
+        <div class="field"><label>Dukaan ka Naam *</label><input type="text" id="shopName" placeholder="e.g. Sharma Kirana Store"/></div>
+        <div class="field"><label>Category *</label><select><option>Kirana / Grocery</option><option>Dairy Products</option><option>Fruits & Vegetables</option><option>Medical / Pharmacy</option><option>Snacks & Beverages</option><option>Bakery</option></select></div>
+        <div class="field-row">
+          <div class="field"><label>Owner Naam *</label><input type="text" id="ownerName" placeholder="Ramesh Sharma"/></div>
+          <div class="field"><label>Mobile *</label><input type="tel" placeholder="98765 43210"/></div>
+        </div>
+        <div class="field"><label>Dukaan Address *</label><input type="text" placeholder="Mohalla, Gali, Shehar"/></div>
+        <div class="field"><label>GST Number (optional)</label><input type="text" placeholder="22AAAAA0000A1Z5"/></div>
+        <div class="field-row">
+          <div class="field"><label>Opening Time</label><input type="time" value="09:00"/></div>
+          <div class="field"><label>Closing Time</label><input type="time" value="21:00"/></div>
+        </div>
+        <button class="submit-btn" onclick="doRegister()">Register karo ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="page" id="pg-dashboard">
+    <div class="topbar" style="background:var(--amber)">
+      <div><div class="tb-t" id="shopNameDisplay">Sharma Kirana</div><div class="tb-s" id="ownerDisplay">Owner: Ramesh Sharma</div></div>
+      <div class="tbadge">🟢 Open</div>
+    </div>
+    <div class="scroll">
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-ic">📦</div><div class="stat-v">0</div><div class="stat-l">Aaj ke Orders</div><div class="stat-ch" style="color:var(--green)">Fresh start!</div></div>
+        <div class="stat"><div class="stat-ic">💰</div><div class="stat-v">₹0</div><div class="stat-l">Aaj ki Kamai</div><div class="stat-ch" style="color:var(--green)">—</div></div>
+        <div class="stat"><div class="stat-ic">🛒</div><div class="stat-v" id="pendingCount">2</div><div class="stat-l">Pending Orders</div><div class="stat-ch" style="color:var(--amber)">Process karo!</div></div>
+        <div class="stat"><div class="stat-ic">⚠️</div><div class="stat-v">3</div><div class="stat-l">Low Stock Items</div><div class="stat-ch" style="color:var(--coral)">Restock karo!</div></div>
+      </div>
+      <div class="sec">Pending Orders</div>
+      <div id="pendingOrders">
+        <div class="ocard" id="o1">
+          <div class="ocard-h"><span class="oid">#2041 — Priya Singh</span><span class="otime">2 min ago</span></div>
+          <div class="oitems">Aata 5kg, Dahi 500g, Amul Butter • ₹306</div>
+          <div class="oactions"><button class="btn btn-g" onclick="acceptO('o1')">✓ Accept</button><button class="btn btn-c" onclick="declineO('o1')">✗ Decline</button></div>
+        </div>
+        <div class="ocard" id="o2">
+          <div class="ocard-h"><span class="oid">#2040 — Suresh Yadav</span><span class="otime">7 min ago</span></div>
+          <div class="oitems">Chawal 5kg, Lay's x3, Taza Doodh • ₹369</div>
+          <div class="oactions"><button class="btn btn-g" onclick="acceptO('o2')">✓ Accept</button><button class="btn btn-c" onclick="declineO('o2')">✗ Decline</button></div>
+        </div>
+      </div>
+      <div class="sec">Low Stock Alert</div>
+      <div class="card">
+        <div class="row"><span style="font-size:12px">🥛 Taza Doodh (1L)</span><span class="badge bc">8 units bache</span></div>
+        <div class="row"><span style="font-size:12px">🍿 Lay's Chips</span><span class="badge bc">3 units bache</span></div>
+        <div class="row"><span style="font-size:12px">💊 Paracetamol</span><span class="badge bc">5 units bache</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STOCK -->
+  <div class="page" id="pg-stock">
+    <div class="topbar" style="background:var(--amber)"><div class="tb-t">📦 Stock Management</div></div>
+    <div class="scroll">
+      <div class="sec"><div class="stock-hdr"><span>Current Stock (8 items)</span><button class="add-btn2" onclick="openPanel()">+ Add Item</button></div></div>
+      <div id="stockList"></div>
+    </div>
+  </div>
+
+  <!-- BILLING -->
+  <div class="page" id="pg-billing">
+    <div class="topbar" style="background:var(--amber)"><div class="tb-t">💳 Billing Machine</div></div>
+    <div class="scroll">
+      <div class="bill-area">
+        <div class="bill-search"><span>🔍</span><input type="text" placeholder="Item search karo..." oninput="filterBill(this.value)"/></div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px">Quick Add:</div>
+        <div class="quick" id="quickChips"></div>
+        <div style="font-size:13px;font-weight:700;color:#888;margin-bottom:8px">Bill Items:</div>
+        <div class="bill-list" id="billList"><div style="padding:16px;text-align:center;color:#bbb;font-size:13px">Koi item nahi — upar se add karo</div></div>
+        <div class="bill-tot" id="billTot" style="display:none"></div>
+        <button class="print-btn" id="printBtn" onclick="doPrint()" style="display:none">🖨️ Bill Print / Save karo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD STOCK PANEL -->
+  <div class="panel" id="addPanel">
+    <div class="panel-top"><button class="bk" onclick="closePanel()">← Back</button><span style="font-size:15px;font-weight:700">Naya Item Add karo</span></div>
+    <div class="panel-body">
+      <div class="field"><label>Item Naam *</label><input type="text" id="nName" placeholder="e.g. Tata Salt"/></div>
+      <div class="field-row">
+        <div class="field"><label>Category</label><select id="nCat"><option>Grocery</option><option>Dairy</option><option>Snacks</option><option>Fruits</option><option>Pharma</option></select></div>
+        <div class="field"><label>Emoji</label><input type="text" id="nEmoji" placeholder="🧂" maxlength="2"/></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>MRP (₹)</label><input type="number" id="nMrp" placeholder="22"/></div>
+        <div class="field"><label>Selling Price (₹)</label><input type="number" id="nPrice" placeholder="20"/></div>
+      </div>
+      <div class="field"><label>Stock Quantity</label><input type="number" id="nQty" placeholder="50"/></div>
+      <button class="submit-btn" onclick="addStock()">Stock mein add karo ✓</button>
+    </div>
+  </div>
+
+  <div class="bnav">
+    <button class="ni" id="ni-register" onclick="sw('register')"><span class="ni-ic">📝</span>Register</button>
+    <button class="ni on" id="ni-dashboard" onclick="sw('dashboard')"><span class="ni-ic">🏠</span>Dashboard</button>
+    <button class="ni" id="ni-stock" onclick="sw('stock')"><span class="ni-ic">📦</span>Stock</button>
+    <button class="ni" id="ni-billing" onclick="sw('billing')"><span class="ni-ic">💳</span>Billing</button>
+  </div>
+</div>
+
+<script>
+let stock=[
+  {id:1,name:"Aata (5kg)",emoji:"🌾",price:215,mrp:249,qty:42,cat:"Grocery"},
+  {id:2,name:"Taza Doodh (1L)",emoji:"🥛",price:54,mrp:60,qty:8,cat:"Dairy"},
+  {id:3,name:"Amul Butter",emoji:"🧈",price:56,mrp:65,qty:24,cat:"Dairy"},
+  {id:4,name:"Lay's Chips",emoji:"🍿",price:20,mrp:20,qty:3,cat:"Snacks"},
+  {id:5,name:"Seb (1kg)",emoji:"🍎",price:80,mrp:100,qty:15,cat:"Fruits"},
+  {id:6,name:"Chawal (5kg)",emoji:"🍚",price:295,mrp:330,qty:30,cat:"Grocery"},
+  {id:7,name:"Dahi (500g)",emoji:"🥣",price:35,mrp:40,qty:18,cat:"Dairy"},
+  {id:8,name:"Paracetamol",emoji:"💊",price:15,mrp:22,qty:5,cat:"Pharma"},
+];
+let bcart={},bfilter='';
+
+function sw(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+name).classList.add('active');
+  document.getElementById('ni-'+name).classList.add('on');
+  if(name==='stock')renderStock();
+  if(name==='billing')renderBilling();
+}
+
+function doRegister(){
+  const n=document.getElementById('shopName').value||'Meri Dukaan';
+  const o=document.getElementById('ownerName').value||'Owner';
+  document.getElementById('shopNameDisplay').textContent=n;
+  document.getElementById('ownerDisplay').textContent='Owner: '+o;
+  sw('dashboard');
+}
+
+function acceptO(id){
+  const el=document.getElementById(id);
+  el.style.background='var(--gl)'; el.style.borderColor='var(--green)';
+  el.querySelector('.oactions').innerHTML='<span style="font-size:12px;color:var(--green);font-weight:700">✅ Accepted — Packing chal rahi hai</span>';
+  const cur=parseInt(document.getElementById('pendingCount').textContent||'0');
+  document.getElementById('pendingCount').textContent=Math.max(0,cur-1);
+}
+
+function declineO(id){
+  const el=document.getElementById(id);
+  el.style.opacity='0.4';
+  el.querySelector('.oactions').innerHTML='<span style="font-size:12px;color:var(--coral)">Declined</span>';
+  const cur=parseInt(document.getElementById('pendingCount').textContent||'0');
+  document.getElementById('pendingCount').textContent=Math.max(0,cur-1);
+}
+
+function renderStock(){
+  document.getElementById('stockList').innerHTML=stock.map(s=>`
+    <div class="si"><div class="si-em">${s.emoji}</div>
+    <div class="si-info"><div class="si-name">${s.name}</div><div class="si-meta">₹${s.price} • MRP ₹${s.mrp} • ${s.cat}</div></div>
+    <div class="si-qty"><div class="si-num">${s.qty}</div><div class="si-lbl">units</div>${s.qty<10?'<span class="low">Low!</span>':''}</div></div>`).join('');
+}
+
+function renderBilling(){
+  const vis=stock.filter(s=>bfilter===''||s.name.toLowerCase().includes(bfilter.toLowerCase()));
+  document.getElementById('quickChips').innerHTML=vis.slice(0,6).map(s=>`<div class="qchip" onclick="addBI(${s.id})">${s.emoji} ${s.name}</div>`).join('');
+  renderBillCart();
+}
+
+function filterBill(v){bfilter=v;renderBilling();}
+function addBI(id){bcart[id]=(bcart[id]||0)+1;renderBillCart();}
+
+function renderBillCart(){
+  const entries=Object.entries(bcart).filter(([,q])=>q>0);
+  const list=document.getElementById('billList'),tot=document.getElementById('billTot'),btn=document.getElementById('printBtn');
+  if(!entries.length){list.innerHTML='<div style="padding:16px;text-align:center;color:#bbb;font-size:13px">Koi item nahi — upar se add karo</div>';tot.style.display='none';btn.style.display='none';return;}
+  list.innerHTML=entries.map(([id,qty])=>{const s=stock.find(x=>x.id==id);return`<div class="bi"><span style="font-size:16px">${s.emoji}</span><span class="bi-name">${s.name}</span><div class="bqc"><button class="bqb" onclick="chgB(${id},-1)">−</button><span class="bqn">${qty}</span><button class="bqb" onclick="chgB(${id},1)">+</button></div><span class="bi-price">₹${s.price*qty}</span><button class="bi-del" onclick="chgB(${id},-${qty})">✕</button></div>`;}).join('');
+  const sub=entries.reduce((a,[id,q])=>a+stock.find(x=>x.id==id).price*q,0);
+  const gst=Math.round(sub*0.05),total=sub+gst;
+  tot.style.display='block';
+  tot.innerHTML=`<div class="btl"><span>Subtotal</span><span>₹${sub}</span></div><div class="btl"><span>GST (5%)</span><span>₹${gst}</span></div><div class="btl big"><span>Total</span><span>₹${total}</span></div>`;
+  btn.style.display='block';
+}
+
+function chgB(id,d){bcart[id]=(bcart[id]||0)+d;if(bcart[id]<=0)delete bcart[id];renderBillCart();}
+
+function doPrint(){
+  Object.entries(bcart).forEach(([id,q])=>{const s=stock.find(x=>x.id==id);s.qty=Math.max(0,s.qty-q);});
+  bcart={};renderBillCart();renderStock();
+  alert('✅ Bill print ho gaya!\nStock automatically update ho gaya!');
+}
+
+function openPanel(){document.getElementById('addPanel').classList.add('open');}
+function closePanel(){document.getElementById('addPanel').classList.remove('open');}
+
+function addStock(){
+  const name=document.getElementById('nName').value||'New Item';
+  const emoji=document.getElementById('nEmoji').value||'📦';
+  const mrp=parseInt(document.getElementById('nMrp').value)||0;
+  const price=parseInt(document.getElementById('nPrice').value)||0;
+  const qty=parseInt(document.getElementById('nQty').value)||0;
+  const cat=document.getElementById('nCat').value;
+  stock.push({id:Date.now(),name,emoji,price,mrp,qty,cat});
+  closePanel();
+  alert('✅ '+name+' stock mein add ho gaya!');
+  renderStock();
+}
+
+sw('dashboard');
+</script>
+</body>
+</html>

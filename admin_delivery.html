@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dukaan — Admin & Delivery</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f0f0; display: flex; justify-content: center; gap: 20px; padding: 20px; min-height: 100vh; flex-wrap: wrap; }
+:root { --green:#1D9E75; --gl:#E1F5EE; --gd:#085041; --amber:#BA7517; --al:#FAEEDA; --coral:#D85A30; --cl:#FAECE7; --blue:#185FA5; --bl:#E6F1FB; --purple:#534AB7; --pl:#EEEDFE; }
+.app { width:100%; max-width:400px; background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.10); overflow:hidden; min-height:700px; display:flex; flex-direction:column; position:relative; }
+.app-lbl { font-size:10px; font-weight:700; text-align:center; padding:6px; background:#f5f5f5; color:#888; border-bottom:1px solid #eee; letter-spacing:0.5px; }
+.topbar { padding:12px 14px; color:#fff; display:flex; align-items:center; justify-content:space-between; }
+.tb-t { font-size:16px; font-weight:700; }
+.tb-s { font-size:11px; opacity:0.85; margin-top:2px; }
+.tbadge { background:rgba(255,255,255,0.2); font-size:11px; border-radius:6px; padding:4px 10px; }
+.page { display:none; flex-direction:column; flex:1; overflow:hidden; }
+.page.active { display:flex; }
+.scroll { flex:1; overflow-y:auto; padding-bottom:10px; }
+.bnav { display:flex; border-top:1px solid #f0f0f0; background:#fff; }
+.ni { flex:1; display:flex; flex-direction:column; align-items:center; padding:9px 4px 7px; cursor:pointer; gap:2px; color:#ccc; font-size:10px; border:none; background:none; }
+.ni-ic { font-size:16px; }
+.sec { font-size:12px; font-weight:700; color:#888; padding:12px 12px 6px; text-transform:uppercase; letter-spacing:0.4px; }
+.card { background:#fff; border:1px solid #f0f0f0; border-radius:14px; padding:12px; margin:0 12px 10px; box-shadow:0 2px 6px rgba(0,0,0,0.04); }
+.row { display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-bottom:1px solid #f5f5f5; font-size:13px; }
+.row:last-child { border-bottom:none; }
+.badge { font-size:10px; border-radius:4px; padding:2px 7px; font-weight:700; }
+.bg { background:var(--gl); color:var(--gd); } .ba { background:var(--al); color:#633806; } .bc { background:var(--cl); color:var(--coral); } .bb { background:var(--bl); color:var(--blue); } .bp { background:var(--pl); color:var(--purple); }
+.btn { border:none; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer; }
+.btn-g { background:var(--green); color:#fff; } .btn-c { background:var(--cl); color:var(--coral); border:1px solid var(--coral); }
+.live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#5DCAA5; animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+.live-lbl { font-size:11px; color:#5DCAA5; display:flex; align-items:center; gap:4px; }
+.ag-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:12px; }
+.ag { background:#f9f9f9; border-radius:12px; padding:12px; border:1px solid #eee; }
+.ag-n { font-size:22px; font-weight:700; color:#222; }
+.ag-l { font-size:11px; color:#888; margin-top:2px; }
+.ag-c { font-size:11px; margin-top:3px; }
+.tw { margin:0 12px 10px; border:1px solid #eee; border-radius:14px; overflow:hidden; }
+.th { display:grid; padding:8px 12px; background:#f9f9f9; font-size:11px; font-weight:700; color:#888; border-bottom:1px solid #eee; }
+.tr { display:grid; padding:9px 12px; border-bottom:1px solid #f5f5f5; font-size:12px; align-items:center; }
+.tr:last-child { border-bottom:none; }
+.t3 { grid-template-columns:2fr 1fr 1fr; }
+.t4 { grid-template-columns:2fr 1fr 1fr 1fr; }
+
+/* DELIVERY */
+.status-tog { display:flex; gap:10px; padding:14px; }
+.sb { flex:1; padding:11px; border-radius:12px; border:1.5px solid #e0e0e0; font-size:13px; font-weight:700; cursor:pointer; background:#f5f5f5; color:#888; text-align:center; transition:all 0.15s; }
+.sb.on { background:var(--gl); border-color:var(--green); color:var(--gd); }
+.sb.off-s { background:var(--cl); border-color:var(--coral); color:var(--coral); }
+.eg { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; padding:0 14px 14px; }
+.ec { background:#f9f9f9; border-radius:10px; padding:10px 8px; text-align:center; border:1px solid #eee; }
+.ev { font-size:17px; font-weight:700; color:#222; }
+.el { font-size:10px; color:#888; margin-top:2px; }
+.oc { margin:0 14px 10px; background:#fff; border:1.5px solid #eee; border-radius:14px; padding:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+.oc.new-o { border-color:var(--amber); background:var(--al); }
+.oc-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.o-id { font-size:13px; font-weight:700; color:#222; }
+.o-t { font-size:11px; color:#888; }
+.o-st { font-size:11px; border-radius:4px; padding:2px 8px; font-weight:700; }
+.o-route { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:12px; color:#888; }
+.o-items { font-size:12px; color:#888; margin-bottom:10px; }
+.o-act { display:flex; gap:8px; }
+.abt { flex:1; padding:8px; border-radius:8px; border:none; font-size:12px; font-weight:700; cursor:pointer; }
+.abt-p { background:var(--blue); color:#fff; }
+.abt-s { background:#f5f5f5; color:#666; border:1px solid #ddd; }
+.abt-g { background:var(--green); color:#fff; }
+.map-ph { margin:0 14px 14px; background:#f5f5f5; border-radius:14px; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; border:1px solid #eee; }
+.er { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5; font-size:13px; }
+.er:last-child { border-bottom:none; }
+.er span:first-child { color:#888; }
+.er span:last-child { font-weight:700; color:#222; }
+</style>
+</head>
+<body>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div class="app">
+  <div class="app-lbl">📊 ADMIN PANEL — DUKAAN HQ</div>
+  <div class="topbar" style="background:var(--purple)">
+    <div><div class="tb-t">Dukaan Admin 📊</div><div class="tb-s">Super Admin • Full Access</div></div>
+    <div class="live-lbl"><span class="live-dot"></span> Live</div>
+  </div>
+  <div class="page active" id="a-main">
+    <div class="scroll">
+      <div class="ag-grid">
+        <div class="ag"><div class="ag-n">₹0</div><div class="ag-l">Aaj GMV</div><div class="ag-c" style="color:var(--green)">Fresh start!</div></div>
+        <div class="ag"><div class="ag-n">0</div><div class="ag-l">Aaj Orders</div><div class="ag-c" style="color:var(--green)">—</div></div>
+        <div class="ag"><div class="ag-n">4</div><div class="ag-l">Active Shops</div><div class="ag-c" style="color:var(--amber)">2 pending</div></div>
+        <div class="ag"><div class="ag-n">4</div><div class="ag-l">Delivery Boys</div><div class="ag-c" style="color:var(--green)">3 online</div></div>
+      </div>
+      <div class="sec">Live Orders Feed</div>
+      <div class="tw">
+        <div class="th t4"><span>Order</span><span>Shop</span><span>Amount</span><span>Status</span></div>
+        <div class="tr t4"><span>—</span><span style="color:#bbb">—</span><span style="color:#bbb">—</span><span class="badge" style="background:#f5f5f5;color:#aaa">Empty</span></div>
+      </div>
+      <div class="sec">Top Shops — Aaj</div>
+      <div class="tw">
+        <div class="th t3"><span>Dukaan</span><span>Orders</span><span>Revenue</span></div>
+        <div class="tr t3"><span>🛒 Sharma Kirana</span><span>0</span><span style="color:var(--gd);font-weight:700">₹0</span></div>
+        <div class="tr t3"><span>🥛 Verma Dairy</span><span>0</span><span style="color:var(--gd);font-weight:700">₹0</span></div>
+        <div class="tr t3"><span>🍎 Fresh Fruits</span><span>0</span><span style="color:var(--gd);font-weight:700">₹0</span></div>
+        <div class="tr t3"><span>💊 Gupta Medical</span><span>0</span><span style="color:var(--gd);font-weight:700">₹0</span></div>
+      </div>
+      <div class="sec">Delivery Boys</div>
+      <div class="tw">
+        <div class="th t4"><span>Name</span><span>Orders</span><span>Kamai</span><span>Status</span></div>
+        <div class="tr t4"><span>Raju B.</span><span>0</span><span>₹0</span><span class="badge bg">Online</span></div>
+        <div class="tr t4"><span>Deepak K.</span><span>0</span><span>₹0</span><span class="badge bg">Online</span></div>
+        <div class="tr t4"><span>Santosh Y.</span><span>0</span><span>₹0</span><span class="badge bg">Online</span></div>
+        <div class="tr t4"><span>Mukesh R.</span><span>0</span><span>₹0</span><span class="badge bc">Offline</span></div>
+      </div>
+      <div class="sec">Pending Shop Approvals</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f5f5f5">
+          <div><div style="font-size:13px;color:#222;font-weight:700">🏪 Gupta Electronics</div><div style="font-size:11px;color:#888">Electronics • Civil Lines</div></div>
+          <div style="display:flex;gap:6px"><button class="btn btn-g" style="padding:5px 10px" onclick="approve(this)">✓</button><button class="btn btn-c" style="padding:5px 10px" onclick="reject(this)">✗</button></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
+          <div><div style="font-size:13px;color:#222;font-weight:700">🥩 Halal Meat Shop</div><div style="font-size:11px;color:#888">Non-Veg • Sadar Bazar</div></div>
+          <div style="display:flex;gap:6px"><button class="btn btn-g" style="padding:5px 10px" onclick="approve(this)">✓</button><button class="btn btn-c" style="padding:5px 10px" onclick="reject(this)">✗</button></div>
+        </div>
+      </div>
+      <div class="sec">Commission Revenue</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 12px 14px">
+        <div class="ag"><div class="ag-n" style="font-size:16px">₹0</div><div class="ag-l">Aaj</div></div>
+        <div class="ag"><div class="ag-n" style="font-size:16px">₹0</div><div class="ag-l">Is Mahine</div></div>
+        <div class="ag"><div class="ag-n" style="font-size:16px">5%</div><div class="ag-l">Rate</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="page" id="a-shops">
+    <div class="scroll">
+      <div class="sec">Registered Shops</div>
+      <div class="tw">
+        <div class="th t3"><span>Dukaan</span><span>Category</span><span>Status</span></div>
+        <div class="tr t3"><span>🛒 Sharma Kirana</span><span style="color:#888;font-size:11px">Grocery</span><span class="badge bg">Active</span></div>
+        <div class="tr t3"><span>🥛 Verma Dairy</span><span style="color:#888;font-size:11px">Dairy</span><span class="badge bg">Active</span></div>
+        <div class="tr t3"><span>🍎 Fresh Fruits</span><span style="color:#888;font-size:11px">Fruits</span><span class="badge bg">Active</span></div>
+        <div class="tr t3"><span>💊 Gupta Medical</span><span style="color:#888;font-size:11px">Pharma</span><span class="badge bg">Active</span></div>
+        <div class="tr t3"><span>🏪 Gupta Electronics</span><span style="color:#888;font-size:11px">Electronics</span><span class="badge ba">Pending</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="bnav">
+    <button class="ni" id="a-ni-main" style="color:var(--purple)" onclick="aSw('main')"><span class="ni-ic">🏠</span>Dashboard</button>
+    <button class="ni" id="a-ni-shops" onclick="aSw('shops')"><span class="ni-ic">🏪</span>Shops</button>
+    <button class="ni"><span class="ni-ic">📦</span>Orders</button>
+    <button class="ni"><span class="ni-ic">💰</span>Revenue</button>
+    <button class="ni"><span class="ni-ic">⚙️</span>Settings</button>
+  </div>
+</div>
+
+<!-- ===== DELIVERY BOY APP ===== -->
+<div class="app">
+  <div class="app-lbl">🛵 DELIVERY BOY APP</div>
+  <div class="topbar" style="background:var(--blue)">
+    <div><div class="tb-t">Jai Delivery 🛵</div><div class="tb-s">Raju Bhaiya • ID: DB-042</div></div>
+    <div class="tbadge">⭐ 4.8</div>
+  </div>
+  <div class="page active" id="d-home">
+    <div class="scroll">
+      <div class="status-tog">
+        <div class="sb on" id="sOn" onclick="setS('on')">🟢 Online</div>
+        <div class="sb" id="sOff" onclick="setS('off')">🔴 Offline</div>
+      </div>
+      <div class="eg">
+        <div class="ec"><div class="ev">0</div><div class="el">Aaj Deliveries</div></div>
+        <div class="ec"><div class="ev">₹0</div><div class="el">Aaj Kamai</div></div>
+        <div class="ec"><div class="ev">0 km</div><div class="el">Distance</div></div>
+      </div>
+      <div class="sec">New Orders 🔔</div>
+      <div class="oc new-o" id="dO1">
+        <div class="oc-top"><div><div class="o-id">#2041 — Priya Singh</div><div class="o-t">Sharma Kirana → Gandhi Nagar</div></div><span class="o-st ba">New</span></div>
+        <div class="o-route">📦 Sharma Kirana → 📍 0.8 km away</div>
+        <div class="o-items">Aata 5kg, Dahi, Butter • ₹50 earn karoge</div>
+        <div class="o-act"><button class="abt abt-p" onclick="acceptDO('dO1')">Accept karo</button><button class="abt abt-s" onclick="skipDO('dO1')">Skip</button></div>
+      </div>
+      <div class="oc new-o" id="dO2">
+        <div class="oc-top"><div><div class="o-id">#2038 — Meena Devi</div><div class="o-t">Verma Dairy → Civil Lines</div></div><span class="o-st ba">New</span></div>
+        <div class="o-route">📦 Verma Dairy → 📍 1.2 km away</div>
+        <div class="o-items">Doodh 2L, Paneer 200g • ₹40 earn karoge</div>
+        <div class="o-act"><button class="abt abt-p" onclick="acceptDO('dO2')">Accept karo</button><button class="abt abt-s" onclick="skipDO('dO2')">Skip</button></div>
+      </div>
+      <div class="sec">Active Delivery</div>
+      <div class="map-ph"><span style="font-size:28px">🗺️</span><p style="font-size:12px;color:#aaa">GPS map yahan dikhega</p></div>
+      <div class="oc">
+        <div class="oc-top"><div><div class="o-id">#2037 — Suresh Verma</div><div class="o-t">ETA: 5 min</div></div><span class="o-st bb">On the way</span></div>
+        <div class="o-route">📦 Gupta Medical → 📍 Sadar Bazar, 0.4 km</div>
+        <div class="o-items">Paracetamol x2, Cough Syrup</div>
+        <div class="o-act"><button class="abt abt-g" onclick="markDone()">✓ Delivered mark karo</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="page" id="d-earn">
+    <div class="scroll" style="padding:14px">
+      <div style="background:var(--bl);border-radius:14px;padding:16px;text-align:center;margin-bottom:14px">
+        <div style="font-size:13px;color:var(--blue);margin-bottom:4px">Is hafte ki kamai</div>
+        <div style="font-size:28px;font-weight:700;color:#0C447C">₹0</div>
+        <div style="font-size:12px;color:var(--blue);margin-top:4px">0 deliveries • abhi shuru karo!</div>
+      </div>
+      <div class="card" style="margin:0 0 14px">
+        <div style="padding:8px 0 10px;font-size:13px;font-weight:700;color:#888;border-bottom:1px solid #f5f5f5">Rozana Kamai</div>
+        <div class="er"><span>Aaj (15 Mar)</span><span>₹0</span></div>
+        <div class="er"><span>Kal (14 Mar)</span><span>₹0</span></div>
+        <div class="er"><span>13 Mar</span><span>₹0</span></div>
+      </div>
+      <div class="card" style="margin:0">
+        <div style="padding:8px 0 10px;font-size:13px;font-weight:700;color:#888;border-bottom:1px solid #f5f5f5">Breakdown</div>
+        <div class="er"><span>Base Delivery</span><span>₹0</span></div>
+        <div class="er"><span>Tips</span><span style="color:var(--green)">+₹0</span></div>
+        <div class="er"><span>Bonus</span><span style="color:var(--green)">+₹0</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="page" id="d-profile">
+    <div class="scroll">
+      <div style="text-align:center;padding:24px 16px 16px;background:#f9f9f9;border-bottom:1px solid #eee">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--bl);border:3px solid var(--blue);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#0C447C">RB</div>
+        <div style="font-size:17px;font-weight:700;color:#222">Raju Bhaiya</div>
+        <div style="font-size:13px;color:#888;margin-top:3px">+91 97654 32109 • DB-042</div>
+        <div style="margin-top:10px;display:flex;justify-content:center;gap:20px">
+          <div><div style="font-size:16px;font-weight:700;color:#222">0</div><div style="font-size:11px;color:#888">Deliveries</div></div>
+          <div><div style="font-size:16px;font-weight:700;color:#222">⭐ —</div><div style="font-size:11px;color:#888">Rating</div></div>
+          <div><div style="font-size:16px;font-weight:700;color:#222">New</div><div style="font-size:11px;color:#888">Joined</div></div>
+        </div>
+      </div>
+      <div style="padding:14px">
+        <div class="card" style="margin:0 0 12px">
+          <div style="padding:6px 0;font-size:12px;color:#888;font-weight:700;border-bottom:1px solid #f5f5f5">Documents</div>
+          <div class="er"><span>Aadhar Card</span><span style="color:var(--amber)">Pending</span></div>
+          <div class="er"><span>Driving Licence</span><span style="color:var(--amber)">Pending</span></div>
+          <div class="er"><span>Vehicle RC</span><span style="color:var(--amber)">Pending</span></div>
+        </div>
+        <div class="card" style="margin:0 0 12px">
+          <div class="er"><span>Bank Account</span><span style="color:var(--amber)">Not linked</span></div>
+          <div class="er"><span>UPI ID</span><span style="color:#bbb">Add karo</span></div>
+        </div>
+        <button style="width:100%;background:none;border:1.5px solid var(--coral);color:var(--coral);border-radius:12px;padding:11px;font-size:14px;font-weight:700;cursor:pointer">🚪 Logout</button>
+      </div>
+    </div>
+  </div>
+  <div class="bnav">
+    <button class="ni" id="d-ni-home" style="color:var(--blue)" onclick="dSw('home')"><span class="ni-ic">🏠</span>Home</button>
+    <button class="ni" id="d-ni-earn" onclick="dSw('earn')"><span class="ni-ic">💰</span>Kamai</button>
+    <button class="ni" id="d-ni-profile" onclick="dSw('profile')"><span class="ni-ic">👤</span>Profile</button>
+  </div>
+</div>
+
+<script>
+function aSw(name){
+  document.querySelectorAll('[id^="a-"]').forEach(p=>{if(p.classList.contains('page'))p.classList.remove('active');});
+  document.querySelectorAll('[id^="a-ni-"]').forEach(n=>n.style.color='');
+  document.getElementById('a-'+name).classList.add('active');
+  const ni=document.getElementById('a-ni-'+name);
+  if(ni)ni.style.color='var(--purple)';
+}
+function approve(btn){btn.closest('div[style]').innerHTML='<span style="font-size:12px;color:var(--green);font-weight:700">✅ Approved!</span>';alert('✅ Shop approved! Ab woh live hai.');}
+function reject(btn){btn.closest('div[style]').innerHTML='<span style="font-size:12px;color:var(--coral)">Rejected</span>';}
+function dSw(name){
+  document.querySelectorAll('[id^="d-"]').forEach(p=>{if(p.classList.contains('page'))p.classList.remove('active');});
+  document.querySelectorAll('[id^="d-ni-"]').forEach(n=>n.style.color='');
+  document.getElementById('d-'+name).classList.add('active');
+  const ni=document.getElementById('d-ni-'+name);
+  if(ni)ni.style.color='var(--blue)';
+}
+function setS(s){
+  document.getElementById('sOn').className='sb'+(s==='on'?' on':'');
+  document.getElementById('sOff').className='sb'+(s==='off'?' off-s':'');
+}
+function acceptDO(id){
+  const el=document.getElementById(id);
+  el.classList.remove('new-o');
+  el.querySelector('.o-st').className='o-st bb';
+  el.querySelector('.o-st').textContent='Accepted ✓';
+  el.querySelector('.o-act').innerHTML='<button class="abt abt-g" style="flex:1">🛵 Pickup ke liye ja raha hoon</button>';
+  alert('✅ Order accept kiya! Ab pickup ke liye jao.');
+}
+function skipDO(id){document.getElementById(id).style.display='none';}
+function markDone(){alert('✅ Delivery complete!\n+₹50 aapke wallet mein aa gaye! 🎉');}
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dukaan App — Customer</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f0f0; display: flex; justify-content: center; padding: 20px; min-height: 100vh; }
+:root { --green:#1D9E75; --gl:#E1F5EE; --gd:#085041; --amber:#BA7517; --al:#FAEEDA; --coral:#D85A30; --cl:#FAECE7; }
+.app { width:100%; max-width:420px; background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(0,0,0,0.10); overflow:hidden; min-height:700px; display:flex; flex-direction:column; position:relative; }
+.topbar { background:var(--green); padding:14px 16px 10px; color:#fff; }
+.topbar-row1 { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.brand { font-size:20px; font-weight:700; }
+.brand span { font-size:10px; background:rgba(255,255,255,0.2); border-radius:4px; padding:2px 6px; margin-left:6px; vertical-align:middle; }
+.cart-btn { position:relative; background:rgba(255,255,255,0.15); border:none; border-radius:8px; padding:6px 12px; color:#fff; cursor:pointer; font-size:16px; }
+.cart-count { position:absolute; top:-6px; right:-6px; background:#EF9F27; color:#fff; border-radius:50%; width:18px; height:18px; font-size:10px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.search-bar { display:flex; align-items:center; background:#fff; border-radius:8px; padding:7px 12px; gap:8px; }
+.search-bar input { border:none; outline:none; font-size:14px; flex:1; color:#333; }
+.loc-row { display:flex; align-items:center; gap:5px; margin-top:8px; font-size:12px; color:rgba(255,255,255,0.85); }
+.loc-row b { color:#fff; }
+.page { display:none; flex-direction:column; flex:1; }
+.page.active { display:flex; }
+.scroll { overflow-y:auto; flex:1; padding-bottom:70px; }
+.banner { margin:14px 14px 0; border-radius:14px; background:linear-gradient(120deg,#E1F5EE,#9FE1CB); padding:16px; display:flex; align-items:center; justify-content:space-between; }
+.banner h3 { font-size:16px; color:var(--gd); font-weight:700; }
+.banner p { font-size:12px; color:var(--green); margin-top:4px; }
+.offer { margin-top:8px; background:var(--green); color:#fff; font-size:11px; border-radius:4px; padding:3px 8px; display:inline-block; }
+.sec { font-size:15px; font-weight:700; color:#222; padding:14px 14px 8px; }
+.cats { display:flex; gap:10px; padding:0 14px 4px; overflow-x:auto; scrollbar-width:none; }
+.cats::-webkit-scrollbar { display:none; }
+.chip { flex-shrink:0; background:#f0f0f0; border:1.5px solid #e0e0e0; border-radius:20px; padding:6px 14px; font-size:13px; cursor:pointer; color:#666; white-space:nowrap; }
+.chip.on { background:var(--gl); border-color:var(--green); color:var(--gd); font-weight:700; }
+.shops-row { display:flex; gap:12px; padding:4px 14px 14px; overflow-x:auto; scrollbar-width:none; }
+.shops-row::-webkit-scrollbar { display:none; }
+.shop-card { flex-shrink:0; width:150px; background:#fff; border:1.5px solid #eee; border-radius:14px; padding:12px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.shop-card:hover { border-color:var(--green); }
+.shop-emo { font-size:28px; margin-bottom:6px; }
+.shop-name { font-size:13px; font-weight:700; color:#222; }
+.shop-meta { font-size:11px; color:#888; margin-top:3px; }
+.shop-badge { font-size:10px; background:var(--gl); color:var(--gd); border-radius:4px; padding:2px 6px; margin-top:6px; display:inline-block; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:4px 14px 14px; }
+.prod { background:#fff; border:1.5px solid #eee; border-radius:14px; padding:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+.prod-img { font-size:32px; text-align:center; background:#f8f8f8; border-radius:8px; padding:10px; margin-bottom:8px; }
+.prod-name { font-size:13px; font-weight:700; color:#222; }
+.prod-shop { font-size:11px; color:#888; margin-top:2px; }
+.price-row { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+.price { font-size:14px; font-weight:700; color:var(--gd); }
+.mrp { font-size:11px; color:#bbb; text-decoration:line-through; }
+.add-btn { background:var(--green); color:#fff; border:none; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:700; cursor:pointer; }
+.add-btn.added { background:var(--amber); }
+.cart-hdr { padding:16px 14px 0; font-size:17px; font-weight:700; color:#222; }
+.cart-body { flex:1; overflow-y:auto; padding:12px 14px; }
+.c-item { display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid #f5f5f5; }
+.c-img { font-size:24px; background:#f8f8f8; border-radius:8px; width:44px; height:44px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.c-info { flex:1; }
+.c-name { font-size:14px; font-weight:700; color:#222; }
+.c-shop { font-size:12px; color:#888; }
+.c-price { font-size:14px; font-weight:700; color:var(--gd); }
+.qty-ctrl { display:flex; align-items:center; gap:8px; margin-top:4px; }
+.qbtn { background:#f0f0f0; border:1px solid #ddd; border-radius:4px; width:24px; height:24px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
+.qnum { font-size:13px; font-weight:700; min-width:16px; text-align:center; }
+.cart-sum { padding:14px; border-top:1px solid #f0f0f0; }
+.sum-row { display:flex; justify-content:space-between; font-size:13px; color:#888; margin-bottom:6px; }
+.sum-row.total { font-size:15px; font-weight:700; color:#222; margin-top:8px; padding-top:8px; border-top:1px solid #f0f0f0; }
+.checkout { width:100%; background:var(--green); color:#fff; border:none; border-radius:12px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; margin-top:12px; }
+.empty { text-align:center; padding:40px 20px; color:#bbb; font-size:14px; }
+.bnav { display:flex; border-top:1px solid #f0f0f0; background:#fff; }
+.ni { flex:1; display:flex; flex-direction:column; align-items:center; padding:10px 4px 8px; cursor:pointer; gap:3px; color:#ccc; font-size:10px; border:none; background:none; }
+.ni.on { color:var(--green); }
+.ni-ic { font-size:18px; }
+.success { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:30px 20px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-row1">
+      <div class="brand">Dukaan<span>Beta</span></div>
+      <button class="cart-btn" onclick="goCart()">🛒<span class="cart-count" id="cc">0</span></button>
+    </div>
+    <div class="search-bar"><span>🔍</span><input type="text" placeholder="Kya dhundh rahe ho?..." oninput="filterP(this.value)"/></div>
+    <div class="loc-row">📍 Deliver to: <b>Firozabad, UP</b></div>
+  </div>
+  <div class="page active" id="pg-home">
+    <div class="scroll">
+      <div class="banner"><div><h3>Local shops, ghar tak!</h3><p>Apne mohalle ki dukaan se<br>seedha order karo</p><span class="offer">Free delivery above ₹199</span></div><div style="font-size:40px">🏪</div></div>
+      <div class="sec">Categories</div>
+      <div class="cats">
+        <div class="chip on" onclick="filterC('all',this)">Sab kuch</div>
+        <div class="chip" onclick="filterC('grocery',this)">🥬 Kirana</div>
+        <div class="chip" onclick="filterC('dairy',this)">🥛 Dairy</div>
+        <div class="chip" onclick="filterC('snacks',this)">🍿 Snacks</div>
+        <div class="chip" onclick="filterC('pharma',this)">💊 Dawai</div>
+        <div class="chip" onclick="filterC('fruits',this)">🍎 Fruits</div>
+      </div>
+      <div class="sec">Nearby Dukaanein 📍</div>
+      <div class="shops-row">
+        <div class="shop-card"><div class="shop-emo">🛒</div><div class="shop-name">Sharma Kirana</div><div class="shop-meta">0.3 km • 15 min</div><div class="shop-badge">Open</div></div>
+        <div class="shop-card"><div class="shop-emo">🥛</div><div class="shop-name">Verma Dairy</div><div class="shop-meta">0.5 km • 20 min</div><div class="shop-badge">Open</div></div>
+        <div class="shop-card"><div class="shop-emo">🍎</div><div class="shop-name">Fresh Fruits</div><div class="shop-meta">0.7 km • 25 min</div><div class="shop-badge">Open</div></div>
+        <div class="shop-card"><div class="shop-emo">💊</div><div class="shop-name">Gupta Medical</div><div class="shop-meta">1.0 km • 30 min</div><div class="shop-badge">Open</div></div>
+      </div>
+      <div class="sec">Popular Items</div>
+      <div class="grid" id="pgrid"></div>
+    </div>
+  </div>
+  <div class="page" id="pg-cart">
+    <div class="cart-hdr">Mera Cart 🛒</div>
+    <div class="cart-body" id="cartBody"></div>
+    <div class="cart-sum" id="cartSum"></div>
+  </div>
+  <div class="page" id="pg-success">
+    <div class="success">
+      <div style="font-size:52px;margin-bottom:16px">✅</div>
+      <div style="font-size:20px;font-weight:700;color:#222;margin-bottom:8px">Order place ho gaya!</div>
+      <div style="font-size:14px;color:#888;line-height:1.6">Shopkeeper ko notification mil gaya.<br>Thodi der mein delivery aa jayegi! 🚀</div>
+      <button onclick="resetAndHome()" style="margin-top:20px;background:var(--green);color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:14px;font-weight:700;cursor:pointer">Aur shopping karo →</button>
+    </div>
+  </div>
+  <div class="bnav">
+    <button class="ni on" id="ni-home" onclick="sw('home')"><span class="ni-ic">🏠</span>Home</button>
+    <button class="ni" id="ni-search" onclick="sw('home')"><span class="ni-ic">🔍</span>Search</button>
+    <button class="ni" id="ni-cart" onclick="sw('cart')"><span class="ni-ic">🛒</span>Cart</button>
+    <button class="ni" id="ni-orders"><span class="ni-ic">📦</span>Orders</button>
+    <button class="ni" id="ni-profile"><span class="ni-ic">👤</span>Profile</button>
+  </div>
+</div>
+<script>
+const PRODUCTS=[
+  {id:1,name:"Aata (5kg)",shop:"Sharma Kirana",price:215,mrp:249,emoji:"🌾",cat:"grocery"},
+  {id:2,name:"Taza Doodh (1L)",shop:"Verma Dairy",price:54,mrp:60,emoji:"🥛",cat:"dairy"},
+  {id:3,name:"Amul Butter",shop:"Verma Dairy",price:56,mrp:65,emoji:"🧈",cat:"dairy"},
+  {id:4,name:"Lay's Chips",shop:"Sharma Kirana",price:20,mrp:20,emoji:"🍿",cat:"snacks"},
+  {id:5,name:"Seb (1kg)",shop:"Fresh Fruits",price:80,mrp:100,emoji:"🍎",cat:"fruits"},
+  {id:6,name:"Paracetamol",shop:"Gupta Medical",price:15,mrp:22,emoji:"💊",cat:"pharma"},
+  {id:7,name:"Chawal (5kg)",shop:"Sharma Kirana",price:295,mrp:330,emoji:"🍚",cat:"grocery"},
+  {id:8,name:"Dahi (500g)",shop:"Verma Dairy",price:35,mrp:40,emoji:"🥣",cat:"dairy"},
+];
+let cart={},cat='all',q='';
+function filtered(){return PRODUCTS.filter(p=>(cat==='all'||p.cat===cat)&&(q===''||p.name.toLowerCase().includes(q.toLowerCase())||p.shop.toLowerCase().includes(q.toLowerCase())));}
+function renderGrid(){document.getElementById('pgrid').innerHTML=filtered().map(p=>`<div class="prod"><div class="prod-img">${p.emoji}</div><div class="prod-name">${p.name}</div><div class="prod-shop">${p.shop}</div><div class="price-row"><div><span class="price">₹${p.price}</span> <span class="mrp">₹${p.mrp}</span></div><button class="add-btn ${cart[p.id]?'added':''}" onclick="add(${p.id})">${cart[p.id]?cart[p.id]+'✓':'+ Add'}</button></div></div>`).join('');}
+function filterC(c,el){cat=c;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));el.classList.add('on');renderGrid();}
+function filterP(v){q=v;renderGrid();}
+function add(id){cart[id]=(cart[id]||0)+1;document.getElementById('cc').textContent=Object.values(cart).reduce((a,b)=>a+b,0);renderGrid();}
+function renderCart(){
+  const items=Object.entries(cart).filter(([,q])=>q>0);
+  const body=document.getElementById('cartBody'),sum=document.getElementById('cartSum');
+  if(!items.length){body.innerHTML='<div class="empty">🛒<br><br>Cart khali hai!<br>Kuch items add karo.</div>';sum.innerHTML='';return;}
+  body.innerHTML=items.map(([id,qty])=>{const p=PRODUCTS.find(x=>x.id==id);return`<div class="c-item"><div class="c-img">${p.emoji}</div><div class="c-info"><div class="c-name">${p.name}</div><div class="c-shop">${p.shop}</div><div class="qty-ctrl"><button class="qbtn" onclick="chg(${id},-1)">−</button><span class="qnum">${qty}</span><button class="qbtn" onclick="chg(${id},1)">+</button></div></div><div class="c-price">₹${p.price*qty}</div></div>`;}).join('');
+  const sub=items.reduce((a,[id,qty])=>a+PRODUCTS.find(x=>x.id==id).price*qty,0);
+  const del=sub>=199?0:30,total=sub+del;
+  sum.innerHTML=`<div class="sum-row"><span>Subtotal</span><span>₹${sub}</span></div><div class="sum-row"><span>Delivery</span><span>${del===0?'<span style="color:var(--green)">Free!</span>':'₹'+del}</span></div><div class="sum-row total"><span>Total</span><span>₹${total}</span></div><button class="checkout" onclick="placeOrder()">Order karo — ₹${total} 🚀</button>`;
+}
+function chg(id,d){cart[id]=Math.max(0,(cart[id]||0)+d);if(!cart[id])delete cart[id];document.getElementById('cc').textContent=Object.values(cart).reduce((a,b)=>a+b,0);renderCart();renderGrid();}
+function sw(name){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));document.getElementById('pg-'+name).classList.add('active');const ni=document.getElementById('ni-'+name);if(ni)ni.classList.add('on');if(name==='cart')renderCart();}
+function goCart(){sw('cart');}
+function placeOrder(){cart={};document.getElementById('cc').textContent=0;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('pg-success').classList.add('active');}
+function resetAndHome(){renderGrid();sw('home');}
+renderGrid();
+</script>
+</body>
+</html>
