@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dukaan App</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #f0f0f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.wrap { max-width: 400px; width: 100%; text-align: center; }
+.logo { font-size: 48px; margin-bottom: 12px; }
+h1 { font-size: 28px; font-weight: 700; color: #085041; margin-bottom: 6px; }
+p { font-size: 14px; color: #888; margin-bottom: 32px; }
+.cards { display: flex; flex-direction: column; gap: 14px; }
+.card { background: #fff; border-radius: 16px; padding: 20px; text-decoration: none; box-shadow: 0 4px 16px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 16px; border: 2px solid transparent; transition: border-color 0.2s; }
+.card:hover { border-color: #1D9E75; }
+.card-ic { font-size: 32px; }
+.card-info { text-align: left; }
+.card-title { font-size: 16px; font-weight: 700; color: #222; }
+.card-sub { font-size: 12px; color: #888; margin-top: 3px; }
+.card-arrow { margin-left: auto; font-size: 20px; color: #ccc; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">🏪</div>
+  <h1>Dukaan App</h1>
+  <p>Local shops, ghar tak!</p>
+  <div class="cards">
+    <a class="card" href="customer.html">
+      <div class="card-ic">🛒</div>
+      <div class="card-info"><div class="card-title">Customer App</div><div class="card-sub">Browse karo, order karo</div></div>
+      <div class="card-arrow">›</div>
+    </a>
+    <a class="card" href="shopkeeper.html">
+      <div class="card-ic">🏪</div>
+      <div class="card-info"><div class="card-title">Shopkeeper Dashboard</div><div class="card-sub">Stock, billing, orders manage karo</div></div>
+      <div class="card-arrow">›</div>
+    </a>
+    <a class="card" href="admin_delivery.html">
+      <div class="card-ic">📊</div>
+      <div class="card-info"><div class="card-title">Admin + Delivery Boy</div><div class="card-sub">Admin panel aur delivery tracking</div></div>
+      <div class="card-arrow">›</div>
+    </a>
+  </div>
+</div>
+</body>
+</html>
